@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat with Doctor Virtual</title>
+</head>
+<body>
+    <h2>Chat with Doctor Virtual</h2>
+    <textarea id="input" rows="4" cols="50" placeholder="Describe your symptoms..."></textarea><br>
+    <button onclick="send()">Send</button>
+    <div id="response" style="margin-top:20px;"></div>
+
+    <script>
+    async function send() {
+        const msg = document.getElementById('input').value;
+        const res = await fetch('/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: msg})
+        });
+        const data = await res.json();
+        document.getElementById('response').innerText = data.reply || "No reply.";
+    }
+    </script>
+</body>
+</html>
