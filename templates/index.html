@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <title>Doctor Virtual – AI Consultation</title>
+  <style>
+    body {font-family: Arial, sans-serif; margin:40px auto; max-width:700px;}
+    #chat {border:1px solid #ddd; height:450px; padding:15px; overflow-y:auto;}
+    .msg {padding:5px;margin:5px 0;}
+    .user {color:#333;}
+    .ai {color:#007bff;}
+    .sys {color:#dc3545;font-weight:bold;}
+  </style>
+</head>
+<body>
+  <h2>🩺 Doctor Virtual</h2>
+  <div id="chat"></div>
+  <input id="message" placeholder="Describe symptoms…" style="width:75%;padding:8px;">
+  <button onclick="sendMessage()">Send</button>
+
+<script>
+async function sendMessage(){
+  const input = document.getElementById('message');
+  if (!input.value.trim()) return;
+  appendChat(input.value, 'user');
+  input.disabled = true;
+
+  const res = await fetch('/chat', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({message:input.value})
+  });
+
+  const data = await res.json();
+  if (data.need_login) appendChat('Please log in for more messages.', 'sys');
+  else if (data.limit_reached) appendChat('Daily limit reached. Subscribe for unlimited access.', 'sys');
+  else appendChat(data.reply, 'ai');
+
+  input.value = '';
+  input.disabled = false;
+  input.focus();
+}
+
+function appendChat(text, cls){
+  const div = document.createElement('div');
+  div.className = 'msg ' + cls;
+  div.textContent = text;
+  document.getElementById('chat').append(div);
+  div.scrollIntoView();
+}
+</script>
+</body>
+</html>
