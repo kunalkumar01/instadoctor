@@ -21,23 +21,16 @@ def todays_counter():
 def ask_doctor_virtual(msg):
     print(f"🟡 Sending to GPT: {msg}")
     try:
-        # Create a new thread
         thread = client.beta.threads.create()
-
-        # Add user message to thread
         client.beta.threads.messages.create(
             thread_id=thread.id,
             role="user",
             content=msg
         )
-
-        # Run the assistant on the thread
         run = client.beta.threads.runs.create(
             thread_id=thread.id,
             assistant_id=ASSISTANT_ID
         )
-
-        # Wait until run completes
         while True:
             status = client.beta.threads.runs.retrieve(
                 run_id=run.id,
@@ -47,7 +40,6 @@ def ask_doctor_virtual(msg):
                 break
             time.sleep(1)
 
-        # Get final response
         messages = client.beta.threads.messages.list(thread_id=thread.id)
         reply = messages.data[0].content[0].text.value
         print("✅ GPT Reply:", reply)
@@ -61,8 +53,11 @@ def ask_doctor_virtual(msg):
 def home():
     return render_template("index.html")
 
-@app.route("/chat", methods=["POST"])
+@app.route("/chat", methods=["GET", "POST"])
 def chat():
+    if request.method == "GET":
+        return render_template("chat.html")
+
     data = request.get_json()
     count = todays_counter()
 
@@ -76,9 +71,6 @@ def chat():
     reply = ask_doctor_virtual(user_msg)
     return jsonify({"reply": reply})
 
-# ✅ Start Flask on correct port for Render
 if __name__ == "__main__":
     print("🚀 Starting Flask on port 8080")
     app.run(host="0.0.0.0", port=8080)
-
-
