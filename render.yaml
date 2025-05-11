@@ -6,8 +6,4 @@ services:
     startCommand: "python app.py"
     envVars:
       - key: OPENAI_API_KEY
-        sync: false
       - key: ASSISTANT_ID
-        sync: false
-      - key: SECRET_KEY
-        generateValue: true
