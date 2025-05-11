@@ -19,11 +19,39 @@ def todays_counter():
 def ask_doctor_virtual(msg):
     print(f"Sending to GPT: {msg}")
     try:
-        response = openai.ChatCompletion.create(
+        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+def ask_doctor_virtual(msg):
+    print(f"🟡 Sending to GPT: {msg}")
+    try:
+        thread = client.beta.threads.create()
+        run = client.beta.threads.runs.create(
+            thread_id=thread.id,
             assistant_id=ASSISTANT_ID,
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": msg}]
+            instructions="You are Doctor Virtual. Help the user medically."
         )
+        client.beta.threads.messages.create(
+            thread_id=thread.id,
+            role="user",
+            content=msg
+        )
+
+        # Poll until run is complete
+        while True:
+            status = client.beta.threads.runs.retrieve(run.id, thread_id=thread.id)
+            if status.status == "completed":
+                break
+            time.sleep(1)
+
+        messages = client.beta.threads.messages.list(thread_id=thread.id)
+        answer = messages.data[0].content[0].text.value
+        print("✅ GPT Reply:", answer)
+        return answer
+
+    except Exception as e:
+        print("❌ GPT ERROR:", str(e))
+        return f"⚠️ Error talking to Doctor Virtual: {str(e)}"
+
         reply = response.choices[0].message["content"]
         print("✅ GPT Reply:", reply)
         return reply
