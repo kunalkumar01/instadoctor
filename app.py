@@ -5,11 +5,9 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 ASSISTANT_ID = os.getenv("ASSISTANT_ID")
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY")
+app.secret_key = os.getenv("SECRET_KEY") or "test"
 
 FREE_LIMIT_VISITOR = 3
-FREE_LIMIT_USER = 3
-PAID_LIMIT = 90
 
 def todays_counter():
     day = time.strftime('%Y-%m-%d')
@@ -19,19 +17,19 @@ def todays_counter():
     return counter
 
 def ask_doctor_virtual(msg):
-    print("Sending to GPT:", msg)
+    print(f"Sending to GPT: {msg}")
     try:
         response = openai.ChatCompletion.create(
             assistant_id=ASSISTANT_ID,
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": msg}]
         )
-        print("GPT Response:", response)
-        return response.choices[0].message["content"]
+        reply = response.choices[0].message["content"]
+        print("✅ GPT Reply:", reply)
+        return reply
     except Exception as e:
-        print("❌ ERROR:", e)
-        return "⚠️ An error occurred while trying to contact Doctor Virtual."
-
+        print("❌ GPT ERROR:", str(e))
+        return f"⚠️ Error talking to Doctor Virtual: {str(e)}"
 
 @app.route("/")
 def home():
@@ -40,20 +38,15 @@ def home():
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
-    user = session.get("user")
     count = todays_counter()
 
-    if user is None and count > FREE_LIMIT_VISITOR:
+    if count > FREE_LIMIT_VISITOR:
         return jsonify({"need_login": True})
 
-    if user and not user.get("subscriber") and count > FREE_LIMIT_USER:
-        return jsonify({"limit_reached": True})
+    user_msg = data.get("message", "").strip()
+    if not user_msg:
+        return jsonify({"reply": "❗️Please enter a message."})
 
-    if user and user.get("subscriber") and count > PAID_LIMIT:
-        return jsonify({"limit_reached": True})
-
-    reply = ask_doctor_virtual(data["message"])
+    reply = ask_doctor_virtual(user_msg)
     return jsonify({"reply": reply})
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
