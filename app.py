@@ -35,6 +35,8 @@ def ask_doctor_virtual(msg):
 def home():
     return render_template("index.html")
 
+# everything above stays the same...
+
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -49,8 +51,12 @@ def chat():
 
     reply = ask_doctor_virtual(user_msg)
     return jsonify({"reply": reply})
-    if __name__ == "__main__":
-        app.run(host="0.0.0.0", port=8080)
+
+# ✅ VERY IMPORTANT: this must be included and indented
+if __name__ == "__main__":
+    print("🚀 Starting Flask app on port 8080")
+    app.run(host="0.0.0.0", port=8080)
+
 
 
 
