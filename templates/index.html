@@ -1,49 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <title>Doctor Virtual</title>
-  <style>
-    body {font-family:sans-serif; max-width:700px; margin:40px auto;}
-    #chat {border:1px solid #ccc; padding:10px; height:400px; overflow:auto;}
-    .msg {margin:6px 0;}
-    .ai {color:#0b73d6;}
-    .sys {color:red;}
-  </style>
+    <title>Doctor Virtual</title>
 </head>
 <body>
-  <h2>🩺 Doctor Virtual</h2>
-  <div id="chat"></div>
-  <input id="text" placeholder="Describe symptoms..." style="width:80%;">
-  <button onclick="send()">Send</button>
-
-<script>
-async function send(){
-  const box = document.getElementById('text');
-  if (!box.value.trim()) return;
-  addMsg(box.value, 'you');
-  try {
-    const r = await fetch('/chat', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:box.value})
-    });
-    const data = await r.json();
-    if (data.need_login) addMsg("🛑 Please log in to continue.", "sys");
-    else if (data.reply) addMsg(data.reply, "ai");
-    else addMsg("⚠️ No reply from Doctor Virtual.", "sys");
-  } catch (err) {
-    addMsg("🚨 Network error: " + err, "sys");
-  }
-  box.value = "";
-}
-
-function addMsg(txt, cls){
-  const div = document.createElement("div");
-  div.className = "msg " + cls;
-  div.innerText = txt;
-  document.getElementById("chat").append(div);
-  div.scrollIntoView();
-}
-</script>
+    <h1>Welcome to Doctor Virtual</h1>
+    <p>Your AI medical assistant is ready.</p>
+    <a href="/chat">→ Start Chat</a>
 </body>
 </html>
