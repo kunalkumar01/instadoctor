@@ -19,12 +19,19 @@ def todays_counter():
     return counter
 
 def ask_doctor_virtual(msg):
-    response = openai.ChatCompletion.create(
-        assistant_id=ASSISTANT_ID,
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": msg}]
-    )
-    return response.choices[0].message["content"]
+    print("Sending to GPT:", msg)
+    try:
+        response = openai.ChatCompletion.create(
+            assistant_id=ASSISTANT_ID,
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": msg}]
+        )
+        print("GPT Response:", response)
+        return response.choices[0].message["content"]
+    except Exception as e:
+        print("❌ ERROR:", e)
+        return "⚠️ An error occurred while trying to contact Doctor Virtual."
+
 
 @app.route("/")
 def home():
