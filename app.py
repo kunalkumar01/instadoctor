@@ -34,8 +34,7 @@ def ask_doctor_virtual(msg):
         # Run the assistant on the thread
         run = client.beta.threads.runs.create(
             thread_id=thread.id,
-            assistant_id=ASSISTANT_ID,
-            instructions="You are Doctor Virtual. Provide medically sound, user-friendly guidance."
+            assistant_id=ASSISTANT_ID
         )
 
         # Wait until run completes
