@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, session, jsonify
-import os, openai, time
+from openai import OpenAI
+import os, time
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client with secure API key
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 ASSISTANT_ID = os.getenv("ASSISTANT_ID")
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY") or "test"
+app.secret_key = os.getenv("SECRET_KEY") or "secret"
 
 FREE_LIMIT_VISITOR = 3
 
@@ -17,44 +19,41 @@ def todays_counter():
     return counter
 
 def ask_doctor_virtual(msg):
-    print(f"Sending to GPT: {msg}")
-    try:
-        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-def ask_doctor_virtual(msg):
     print(f"🟡 Sending to GPT: {msg}")
     try:
+        # Create a new thread
         thread = client.beta.threads.create()
-        run = client.beta.threads.runs.create(
-            thread_id=thread.id,
-            assistant_id=ASSISTANT_ID,
-            instructions="You are Doctor Virtual. Help the user medically."
-        )
+
+        # Add user message to thread
         client.beta.threads.messages.create(
             thread_id=thread.id,
             role="user",
             content=msg
         )
 
-        # Poll until run is complete
+        # Run the assistant on the thread
+        run = client.beta.threads.runs.create(
+            thread_id=thread.id,
+            assistant_id=ASSISTANT_ID,
+            instructions="You are Doctor Virtual. Provide medically sound, user-friendly guidance."
+        )
+
+        # Wait until run completes
         while True:
-            status = client.beta.threads.runs.retrieve(run.id, thread_id=thread.id)
+            status = client.beta.threads.runs.retrieve(
+                run_id=run.id,
+                thread_id=thread.id
+            )
             if status.status == "completed":
                 break
             time.sleep(1)
 
+        # Get final response
         messages = client.beta.threads.messages.list(thread_id=thread.id)
-        answer = messages.data[0].content[0].text.value
-        print("✅ GPT Reply:", answer)
-        return answer
-
-    except Exception as e:
-        print("❌ GPT ERROR:", str(e))
-        return f"⚠️ Error talking to Doctor Virtual: {str(e)}"
-
-        reply = response.choices[0].message["content"]
+        reply = messages.data[0].content[0].text.value
         print("✅ GPT Reply:", reply)
         return reply
+
     except Exception as e:
         print("❌ GPT ERROR:", str(e))
         return f"⚠️ Error talking to Doctor Virtual: {str(e)}"
@@ -62,8 +61,6 @@ def ask_doctor_virtual(msg):
 @app.route("/")
 def home():
     return render_template("index.html")
-
-# everything above stays the same...
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -80,11 +77,9 @@ def chat():
     reply = ask_doctor_virtual(user_msg)
     return jsonify({"reply": reply})
 
-# ✅ VERY IMPORTANT: this must be included and indented
+# ✅ Start Flask on correct port for Render
 if __name__ == "__main__":
-    print("🚀 Starting Flask app on port 8080")
+    print("🚀 Starting Flask on port 8080")
     app.run(host="0.0.0.0", port=8080)
-
-
 
 
