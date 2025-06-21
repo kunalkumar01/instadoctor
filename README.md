@@ -33,6 +33,10 @@ The server will start on `http://localhost:8080` and you can navigate to `/chat`
 
 Users can sign up or log in before chatting. Accounts are stored in a local SQLite database (`instadoctor.db`). If you send more than three messages without an account you will be asked to log in.
 
+### Daily Limit
+
+Guests can only send up to three messages per day before being prompted to sign in or create an account.
+
 ### Medical Intake
 
 When you first visit `/chat` you will be redirected to `/intake` to provide
