@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up - Insta Doctor</title>
+    <style>
+        body { background:#fce4ec; font-family: Arial; text-align:center; }
+        form { display:inline-block; padding:20px; background:#fff; border-radius:8px; }
+        input { margin:5px; padding:5px; }
+        button { background:#c2185b; color:white; border:none; padding:8px 16px; }
+        a { color:#c2185b; }
+    </style>
+</head>
+<body>
+    <h2>Create Account</h2>
+    {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+    <form method="post">
+        <input name="username" placeholder="Username" required><br>
+        <input name="password" type="password" placeholder="Password" required><br>
+        <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="/login">Login</a></p>
+</body>
+</html>

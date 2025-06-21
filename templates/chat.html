@@ -2,23 +2,68 @@
 <html>
 <head>
     <title>Chat with Doctor Virtual</title>
+    <style>
+        body { background:#fff3e0; font-family: Arial; }
+        header { background:#fb8c00; color:white; padding:10px; }
+        #chatlog { height:300px; overflow-y:auto; border:1px solid #ccc; padding:5px; margin-bottom:10px; background:#ffffff; }
+        button { background:#fb8c00; color:white; border:none; padding:6px 12px; margin-top:5px; }
+    </style>
 </head>
 <body>
+    <header>
+        <a href="/" style="color:white; text-decoration:none;">Home</a>
+        {% if logged_in %}
+          <a href="/logout" style="color:white; margin-left:10px;">Logout</a>
+        {% else %}
+          <a href="/login" style="color:white; margin-left:10px;">Login</a>
+          <a href="/signup" style="color:white; margin-left:10px;">Sign Up</a>
+        {% endif %}
+    </header>
     <h2>Chat with Doctor Virtual</h2>
-    <textarea id="input" rows="4" cols="50" placeholder="Describe your symptoms..."></textarea><br>
+    <div id="chatlog"></div>
+    <textarea id="input" rows="3" cols="50" placeholder="Describe your symptoms..."></textarea><br>
     <button onclick="send()">Send</button>
-    <div id="response" style="margin-top:20px;"></div>
+    <br><br>
+    <input type="file" id="file" multiple accept="image/*,application/pdf">
+    <button onclick="upload()">Upload</button>
 
     <script>
     async function send() {
         const msg = document.getElementById('input').value;
+        if (!msg.trim()) return;
+        document.getElementById('input').value = '';
+
+        const log = document.getElementById('chatlog');
+        log.innerHTML += `<div><strong>You:</strong> ${msg}</div>`;
+
         const res = await fetch('/chat', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({message: msg})
         });
         const data = await res.json();
-        document.getElementById('response').innerText = data.reply || "No reply.";
+        if (data.need_login) {
+            log.innerHTML += `<div><em>Daily limit reached, please log in.</em></div>`;
+        } else {
+            log.innerHTML += `<div><strong>Doctor:</strong> ${data.reply || 'No reply.'}</div>`;
+        }
+        log.scrollTop = log.scrollHeight;
+    }
+
+    async function upload() {
+        const fileInput = document.getElementById('file');
+        if (!fileInput.files.length) return;
+        const form = new FormData();
+        for (const f of fileInput.files) {
+            form.append('file', f);
+        }
+        fileInput.value = '';
+
+        const res = await fetch('/upload', { method: 'POST', body: form });
+        const data = await res.json();
+        const log = document.getElementById('chatlog');
+        log.innerHTML += `<div><em>Uploaded files: ${data.uploaded.join(', ')}</em></div>`;
+        log.scrollTop = log.scrollHeight;
     }
     </script>
 </body>

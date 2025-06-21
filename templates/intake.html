@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Medical Intake</title>
+    <style>
+        body { background:#e8f5e9; font-family: Arial; }
+        header { background:#43a047; color:white; padding:10px; }
+        form { margin:20px; background:#fff; padding:15px; border-radius:8px; }
+        button { background:#43a047; color:white; border:none; padding:6px 12px; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" style="color:white; text-decoration:none;">Home</a>
+    </header>
+    <h2>Provide your medical information</h2>
+    <form method="post">
+        <label>Name: <input type="text" name="name" required></label><br>
+        <label>Age: <input type="number" name="age" required></label><br>
+        Gender:
+        <label><input type="radio" name="gender" value="Male" required>Male</label>
+        <label><input type="radio" name="gender" value="Female">Female</label>
+        <label><input type="radio" name="gender" value="Other">Other</label><br>
+        <label>Symptoms:<br>
+            <textarea name="symptoms" rows="4" cols="50" required></textarea>
+        </label><br>
+        <label>Duration of illness: <input type="text" name="duration" required></label><br>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
