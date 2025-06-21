@@ -18,7 +18,11 @@
             body: JSON.stringify({message: msg})
         });
         const data = await res.json();
-        document.getElementById('response').innerText = data.reply || "No reply.";
+        if (data.need_login) {
+            document.getElementById('response').innerText = 'Daily limit reached, please log in.';
+        } else {
+            document.getElementById('response').innerText = data.reply || 'No reply.';
+        }
     }
     </script>
 </body>
