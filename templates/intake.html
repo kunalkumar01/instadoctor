@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Medical Intake</title>
+</head>
+<body>
+    <h2>Provide your medical information</h2>
+    <form method="post">
+        <label>Name: <input type="text" name="name" required></label><br>
+        <label>Age: <input type="number" name="age" required></label><br>
+        Gender:
+        <label><input type="radio" name="gender" value="Male" required>Male</label>
+        <label><input type="radio" name="gender" value="Female">Female</label>
+        <label><input type="radio" name="gender" value="Other">Other</label><br>
+        <label>Symptoms:<br>
+            <textarea name="symptoms" rows="4" cols="50" required></textarea>
+        </label><br>
+        <label>Duration of illness: <input type="text" name="duration" required></label><br>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

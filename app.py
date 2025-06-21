@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, jsonify
+from flask import Flask, render_template, request, session, jsonify, redirect
 from openai import OpenAI
 import os, time
 
@@ -62,9 +62,27 @@ def ask_doctor_virtual(msg):
 def home():
     return render_template("index.html")
 
+@app.route("/intake", methods=["GET", "POST"])
+def intake():
+    if request.method == "POST":
+        session["intake"] = {
+            "name": request.form.get("name", ""),
+            "age": request.form.get("age", ""),
+            "gender": request.form.get("gender", ""),
+            "symptoms": request.form.get("symptoms", ""),
+            "duration": request.form.get("duration", ""),
+        }
+        session["intake_submitted"] = True
+        session["intake_used"] = False
+        session.modified = True
+        return redirect("/chat")
+    return render_template("intake.html")
+
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
     if request.method == "GET":
+        if not session.get("intake_submitted"):
+            return redirect("/intake")
         return render_template("chat.html")
 
     data = request.get_json()
@@ -76,6 +94,20 @@ def chat():
     user_msg = data.get("message", "").strip()
     if not user_msg:
         return jsonify({"reply": "❗️Please enter a message."})
+
+    if session.get("intake_submitted") and not session.get("intake_used"):
+        info = session.get("intake", {})
+        prefix = (
+            f"Patient Info:\n"
+            f"Name: {info.get('name')}\n"
+            f"Age: {info.get('age')}\n"
+            f"Gender: {info.get('gender')}\n"
+            f"Symptoms: {info.get('symptoms')}\n"
+            f"Duration: {info.get('duration')}\n"
+        )
+        user_msg = prefix + "\n" + user_msg
+        session["intake_used"] = True
+        session.modified = True
 
     reply = ask_doctor_virtual(user_msg)
     return jsonify({"reply": reply})
