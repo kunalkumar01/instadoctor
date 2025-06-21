@@ -1,6 +1,6 @@
 # Insta Doctor
 
-Insta Doctor is a simple Flask application that provides an AI powered medical chat assistant.
+Insta Doctor is a simple Flask application that provides an **AI-powered** medical chat assistant.
 
 ## Requirements
 
