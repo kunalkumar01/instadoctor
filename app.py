@@ -2,9 +2,16 @@ from flask import Flask, render_template, request, session, jsonify
 from openai import OpenAI
 import os, time
 
-# Initialize OpenAI client with secure API key
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Validate environment configuration
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ASSISTANT_ID = os.getenv("ASSISTANT_ID")
+if not OPENAI_API_KEY:
+    raise RuntimeError("OPENAI_API_KEY environment variable is required")
+if not ASSISTANT_ID:
+    raise RuntimeError("ASSISTANT_ID environment variable is required")
+
+# Initialize OpenAI client with secure API key
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY") or "secret"
@@ -38,6 +45,8 @@ def ask_doctor_virtual(msg):
             )
             if status.status == "completed":
                 break
+            if status.status in ["failed", "cancelled", "expired", "requires_action"]:
+                raise RuntimeError(f"Run {status.status}")
             time.sleep(1)
 
         messages = client.beta.threads.messages.list(thread_id=thread.id)
